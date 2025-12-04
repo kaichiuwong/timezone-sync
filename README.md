@@ -27,63 +27,40 @@ ChronoSync is a professional timezone visualizer designed to help distributed te
 
 ## 🚀 Deployment
 
-This project is built as a standard **React Single Page Application (SPA)** using TypeScript. It is optimized for static hosting.
+This project is now configured as a standard Vite React application, making it instantly deployable to Vercel.
 
-### Prerequisites
-- Node.js (v18 or higher)
-- npm or yarn
+### 1. Local Development
 
-### 1. Installation
-If you haven't already initialized the project with a build tool (like Vite), you can set it up quickly:
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-```bash
-# Create a new Vite project
-npm create vite@latest chronosync -- --template react-ts
+2. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser.
 
-# Move the provided source files into /src
-# (Ensure index.html is in the root and points to /src/index.tsx)
+### 2. Vercel Deployment
 
-# Install dependencies
-npm install tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-```
+**Zero-Config Deployment:**
+1. Push this code to a Git repository (GitHub, GitLab, or Bitbucket).
+2. Go to [Vercel](https://vercel.com) and click **"Add New..."** > **"Project"**.
+3. Import your Git repository.
+4. Vercel will detect `Vite` framework automatically.
+5. Click **Deploy**.
 
-### 2. Local Development
-To run the app locally:
-
-```bash
-npm run dev
-```
-Open your browser to `http://localhost:5173`.
-
-### 3. Production Build
-To create a production-ready build:
-
+**Manual Build:**
+To build locally for production:
 ```bash
 npm run build
 ```
-This command generates a `dist` (or `build`) folder containing static HTML, CSS, and JavaScript files.
-
-### 4. Hosting
-You can deploy the output folder to any static hosting provider.
-
-#### **Vercel** (Recommended)
-1. Push your code to a GitHub repository.
-2. Log in to Vercel and "Add New Project".
-3. Select your repository.
-4. Vercel automatically detects Vite/React. Click **Deploy**.
-
-#### **Netlify**
-1. Drag and drop the `dist` folder into the Netlify dashboard.
-2. Or connect your Git repository and set the build command to `npm run build` and publish directory to `dist`.
-
-#### **GitHub Pages**
-1. Update `vite.config.ts` to set `base: '/repo-name/'`.
-2. Run the build.
-3. Deploy the `dist` folder to the `gh-pages` branch.
+This generates a `dist` folder which can be served by any static host.
 
 ## 🛠️ Tech Stack
 - **React 18**: UI Library
 - **TypeScript**: Type safety
-- **Tailwind CSS**: Styling
+- **Tailwind CSS**: Styling (via PostCSS)
+- **Vite**: Build tool
 - **Intl API**: Native date/time & timezone math
