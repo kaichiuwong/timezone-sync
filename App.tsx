@@ -3,6 +3,7 @@ import { DEFAULT_CITIES, City } from './types';
 import { CityRow } from './components/CityRow';
 import { CitySearch } from './components/CitySearch';
 import { getLocalTimeParts, getTimezoneOffsetMinutes, getUtcDateFromLocal, getLocalMinutes, generateTimeOptions } from './utils/time';
+import { SunIcon, MoonIcon } from './components/Icons';
 
 const App: React.FC = () => {
   // Cities State
@@ -13,6 +14,27 @@ const App: React.FC = () => {
   
   // 12/24 Hour Format Toggle (Default True)
   const [is24Hour, setIs24Hour] = useState(true);
+
+  // Theme State
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'light';
+  });
+
+  // Apply theme to html element
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   // Initialize: Set time to current time of the first city, rounded to nearest 30 mins
   useEffect(() => {
@@ -93,10 +115,10 @@ const App: React.FC = () => {
   const timeOptions = useMemo(() => generateTimeOptions(is24Hour), [is24Hour]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 pb-20 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200 pb-20 font-sans selection:bg-cyan-500/30 transition-colors duration-300">
       
       {/* Header */}
-      <header className="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md bg-opacity-80 supports-[backdrop-filter]:bg-opacity-60">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 backdrop-blur-md bg-opacity-80 dark:bg-opacity-80 supports-[backdrop-filter]:bg-opacity-60">
         <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
              <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)] border border-cyan-400/20">
@@ -105,34 +127,44 @@ const App: React.FC = () => {
                </svg>
              </div>
              <div>
-               <h1 className="text-2xl font-bold text-white tracking-tight">ChronoSync</h1>
+               <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">ChronoSync</h1>
              </div>
           </div>
           
           <div className="w-full md:w-auto flex flex-col sm:flex-row items-center gap-4">
+            
+             {/* Theme Toggle */}
+             <button
+               onClick={toggleTheme}
+               className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700"
+               title="Toggle Theme"
+             >
+                {theme === 'dark' ? <SunIcon className="w-5 h-5" /> : <MoonIcon className="w-5 h-5" />}
+             </button>
+
              {/* 12h/24h Toggle */}
-             <div className="flex bg-slate-800 rounded-lg p-1 border border-slate-700">
+             <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 border border-slate-200 dark:border-slate-700">
                 <button 
                   onClick={() => setIs24Hour(false)}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${!is24Hour ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'}`}
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${!is24Hour ? 'bg-white dark:bg-cyan-600 text-cyan-600 dark:text-white shadow-sm' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50'}`}
                 >
                   12H
                 </button>
                 <button 
                   onClick={() => setIs24Hour(true)}
-                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${is24Hour ? 'bg-cyan-600 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'}`}
+                  className={`px-3 py-1 rounded text-xs font-bold transition-all ${is24Hour ? 'bg-white dark:bg-cyan-600 text-cyan-600 dark:text-white shadow-sm' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-700/50'}`}
                 >
                   24H
                 </button>
              </div>
 
              <div className="flex items-center gap-2 w-full md:w-auto">
-                <label className="text-sm text-slate-400 font-medium whitespace-nowrap hidden sm:block">Set Time:</label>
+                <label className="text-sm text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap hidden sm:block">Set Time:</label>
                 <div className="relative w-full md:w-40">
                     <select
                         value={sliderMinutes}
                         onChange={(e) => setSliderMinutes(Number(e.target.value))}
-                        className="w-full appearance-none bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 cursor-pointer font-mono text-base transition-all shadow-sm"
+                        className="w-full appearance-none bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 cursor-pointer font-mono text-base transition-all shadow-sm"
                     >
                         {timeOptions.map((opt) => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -170,14 +202,14 @@ const App: React.FC = () => {
           ))}
           
           {cities.length === 0 && (
-            <div className="text-center py-20 border-2 border-dashed border-slate-800 rounded-xl bg-slate-900/30">
+            <div className="text-center py-20 border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl bg-slate-100 dark:bg-slate-900/30">
               <p className="text-slate-500">No cities added. Use the search bar to begin.</p>
             </div>
           )}
         </div>
         
         {/* Legend */}
-        <div className="mt-12 flex flex-wrap justify-center gap-6 text-xs text-slate-500 border-t border-slate-800 pt-6">
+        <div className="mt-12 flex flex-wrap justify-center gap-6 text-xs text-slate-500 border-t border-slate-200 dark:border-slate-800 pt-6">
            <div className="flex items-center gap-2">
              <div className="w-3 h-3 bg-green-500/20 border border-green-500/50 rounded-sm"></div>
              <span>Working Hours (9-18)</span>
@@ -191,7 +223,7 @@ const App: React.FC = () => {
              <span>Night</span>
            </div>
            <div className="flex items-center gap-2">
-             <div className="w-3 h-3 bg-white rounded-full border border-slate-700"></div>
+             <div className="w-3 h-3 bg-white rounded-full border border-slate-700 shadow-sm"></div>
              <span>Current Time Cursor</span>
            </div>
         </div>

@@ -26,7 +26,7 @@ const DayCycleBar: React.FC<{ sunrise: number; sunset: number; workStart: number
 
   return (
     <div className="relative w-full h-full">
-      {/* Night Base */}
+      {/* Night Base - Always dark as it represents night */}
       <div className="absolute inset-0 bg-slate-950 opacity-90"></div>
       
       {/* Day Light Block */}
@@ -83,38 +83,38 @@ export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove,
   const isDaytime = currentMinutes >= sunrise && currentMinutes < sunset;
 
   return (
-    <div className="group relative bg-slate-800/50 hover:bg-slate-800/80 border border-slate-700 hover:border-slate-600 rounded-xl p-4 transition-all duration-300">
+    <div className="group relative bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl p-4 transition-all duration-300 shadow-sm dark:shadow-none">
       
       {/* Top Row: Info */}
       <div className="flex justify-between items-start mb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="text-xl font-bold text-white tracking-tight">{city.name}</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{city.name}</h3>
             {isBase ? (
-              <span className="text-[10px] uppercase font-bold bg-cyan-900/50 text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-800">Home</span>
+              <span className="text-[10px] uppercase font-bold bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-200 dark:border-cyan-800">Home</span>
             ) : (
               <button 
                 onClick={() => onSetHome(city.id)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase font-bold bg-slate-700 hover:bg-cyan-900/50 text-slate-300 hover:text-cyan-300 px-1.5 py-0.5 rounded border border-slate-600 hover:border-cyan-800 flex items-center gap-1"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase font-bold bg-slate-200 dark:bg-slate-700 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 text-slate-600 dark:text-slate-300 hover:text-cyan-700 dark:hover:text-cyan-300 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 hover:border-cyan-300 dark:hover:border-cyan-800 flex items-center gap-1"
                 title="Set as Home City"
               >
                 <HomeIcon className="w-3 h-3" /> Make Home
               </button>
             )}
           </div>
-          <p className="text-sm text-slate-400 mt-0.5">
-            {city.state ? <span className="text-slate-400">{city.state}, </span> : null}
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            {city.state ? <span className="text-slate-500 dark:text-slate-400">{city.state}, </span> : null}
             {city.country} • {getOffsetString(referenceDate, city.timezone)}
           </p>
         </div>
         
         <div className="text-right relative">
-          <div className={`relative flex items-center justify-end group/time cursor-pointer rounded px-1 -mr-1 transition-colors hover:bg-slate-700/50`}>
-             <div className={`text-2xl font-mono font-semibold ${isWorkingHours ? 'text-green-400' : 'text-slate-200'}`}>
+          <div className={`relative flex items-center justify-end group/time cursor-pointer rounded px-1 -mr-1 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700/50`}>
+             <div className={`text-2xl font-mono font-semibold ${isWorkingHours ? 'text-green-600 dark:text-green-400' : 'text-slate-800 dark:text-slate-200'}`}>
                 {formatTime(referenceDate, city.timezone, is24Hour)}
              </div>
              {/* Edit Pencil Icon on Hover */}
-             <div className="opacity-0 group-hover/time:opacity-100 absolute -left-5 text-slate-500 transition-opacity">
+             <div className="opacity-0 group-hover/time:opacity-100 absolute -left-5 text-slate-400 dark:text-slate-500 transition-opacity">
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
              </div>
              
@@ -136,17 +136,17 @@ export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove,
       </div>
 
       {/* Visual Timeline Bar with Static Cursor */}
-      <div className="relative h-14 w-full bg-slate-900/80 rounded-lg overflow-hidden border border-slate-800 shadow-inner">
+      <div className="relative h-14 w-full bg-slate-100 dark:bg-slate-900/80 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 shadow-inner">
         <div 
           className="absolute top-0 bottom-0 left-0 flex h-full w-[300%] will-change-transform"
           style={{ transform: `translateX(-${(50 + progressPercent) / 3}%)` }}
         >
           {/* Yesterday */}
-          <div className="flex-1 border-r border-slate-800/50 relative">
+          <div className="flex-1 border-r border-slate-300/20 dark:border-slate-800/50 relative">
              <DayCycleBar sunrise={sunrise} sunset={sunset} workStart={workStart} workEnd={workEnd} />
           </div>
           {/* Today */}
-          <div className="flex-1 border-r border-slate-800/50 relative">
+          <div className="flex-1 border-r border-slate-300/20 dark:border-slate-800/50 relative">
              <DayCycleBar sunrise={sunrise} sunset={sunset} workStart={workStart} workEnd={workEnd} />
           </div>
           {/* Tomorrow */}
@@ -156,9 +156,9 @@ export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove,
         </div>
 
         {/* Static Center Cursor */}
-        <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5 bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] z-20 pointer-events-none">
-            <div className={`absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-slate-800 ${isWorkingHours ? 'bg-green-400' : 'bg-white'}`}></div>
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white/50"></div>
+        <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5 bg-cyan-500 dark:bg-white shadow-[0_0_15px_rgba(255,255,255,0.8)] z-20 pointer-events-none">
+            <div className={`absolute -top-1 left-1/2 -translate-x-1/2 w-2.5 h-2.5 rounded-full border-2 border-slate-100 dark:border-slate-800 ${isWorkingHours ? 'bg-green-500 dark:bg-green-400' : 'bg-cyan-500 dark:bg-white'}`}></div>
+            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-cyan-500/50 dark:bg-white/50"></div>
         </div>
 
       </div>
@@ -166,16 +166,16 @@ export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove,
       {/* Status Badges */}
       <div className="flex gap-2 mt-3 overflow-x-auto pb-1 no-scrollbar">
         {isWorkingHours && (
-            <span className="whitespace-nowrap inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-900/30 text-green-400 border border-green-800/50">
+            <span className="whitespace-nowrap inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800/50">
               Working Hours
             </span>
         )}
         {!isDaytime ? (
-             <span className="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-indigo-900/30 text-indigo-300 border border-indigo-800/50">
+             <span className="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/50">
               <MoonIcon className="w-3 h-3" /> Night
             </span>
         ) : (
-             <span className="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-amber-900/20 text-amber-300 border border-amber-800/50">
+             <span className="whitespace-nowrap inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-amber-100 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/50">
               <SunIcon className="w-3 h-3" /> Day
             </span>
         )}
@@ -185,7 +185,7 @@ export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove,
       {!isBase && (
         <button 
           onClick={() => onRemove(city.id)}
-          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 p-2 text-slate-500 hover:text-red-400 transition-all bg-slate-900/90 rounded-md border border-slate-800 hover:border-red-900/50 z-30"
+          className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 p-2 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-all bg-white dark:bg-slate-900/90 rounded-md border border-slate-200 dark:border-slate-800 hover:border-red-200 dark:hover:border-red-900/50 z-30 shadow-sm"
           title="Remove city"
         >
           <TrashIcon className="w-4 h-4" />
