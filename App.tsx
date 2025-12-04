@@ -1,6 +1,21 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  DndContext, 
+  closestCenter, 
+  KeyboardSensor, 
+  PointerSensor, 
+  useSensor, 
+  useSensors,
+  DragEndEvent 
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { DEFAULT_CITIES, City } from './types';
-import { CityRow } from './components/CityRow';
+import { SortableCityRow } from './components/SortableCityRow';
 import { CitySearch } from './components/CitySearch';
 import { getLocalTimeParts, getTimezoneOffsetMinutes, getUtcDateFromLocal, getLocalMinutes, generateTimeOptions } from './utils/time';
 import { SunIcon, MoonIcon } from './components/Icons';
@@ -22,6 +37,14 @@ const App: React.FC = () => {
     }
     return 'light';
   });
+
+  // DnD Sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Apply theme to html element
   useEffect(() => {
@@ -94,6 +117,43 @@ const App: React.FC = () => {
     setSliderMinutes(rounded);
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setCities((items) => {
+        const oldIndex = items.findIndex((c) => c.id === active.id);
+        const newIndex = items.findIndex((c) => c.id === over.id);
+        
+        const newItems = arrayMove(items, oldIndex, newIndex);
+        
+        // If the Home City (index 0) changed due to drag, we must update 
+        // sliderMinutes to prevent Global Time Jump.
+        // Concept: The "absolute moment" (globalDate) should remain the same before and after drag.
+        if (newIndex === 0 || oldIndex === 0) {
+           // We need the new home city (newItems[0])
+           // And we calculate what its local time is based on the CURRENT globalDate
+           // Note: globalDate is computed from (cities[0], sliderMinutes) of the PREVIOUS state.
+           // We can capture it before state update.
+           
+           // Actually, we can just calculate it right now:
+           const currentGlobal = getUtcDateFromLocal(sliderMinutes, items[0].timezone);
+           const newHomeCity = newItems[0];
+           const newHomeLocal = getLocalMinutes(currentGlobal, newHomeCity.timezone);
+           
+           let rounded = Math.round(newHomeLocal / 30) * 30;
+           if (rounded >= 1440) rounded = 0;
+           
+           // We must queue this state update to happen with the cities update
+           // But React batches updates in event handlers.
+           setSliderMinutes(rounded);
+        }
+        
+        return newItems;
+      });
+    }
+  };
+
   const handleCityTimeUpdate = (city: City, newMinutes: number) => {
       if (cities.length === 0) return;
 
@@ -127,7 +187,7 @@ const App: React.FC = () => {
                </svg>
              </div>
              <div>
-               <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">ChronoSync</h1>
+               <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">TimezoneSync</h1>
              </div>
           </div>
           
@@ -188,18 +248,29 @@ const App: React.FC = () => {
 
         {/* Cities List */}
         <div className="space-y-4">
-          {cities.map((city, index) => (
-            <CityRow 
-              key={city.id} 
-              city={city} 
-              referenceDate={globalDate}
-              onRemove={handleRemoveCity}
-              onSetHome={handleSetHome}
-              onTimeChange={(val) => handleCityTimeUpdate(city, val)}
-              isBase={index === 0}
-              is24Hour={is24Hour}
-            />
-          ))}
+          <DndContext 
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext 
+              items={cities.map(c => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {cities.map((city, index) => (
+                <SortableCityRow 
+                  key={city.id} 
+                  city={city} 
+                  referenceDate={globalDate}
+                  onRemove={handleRemoveCity}
+                  onSetHome={handleSetHome}
+                  onTimeChange={(val) => handleCityTimeUpdate(city, val)}
+                  isBase={index === 0}
+                  is24Hour={is24Hour}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
           
           {cities.length === 0 && (
             <div className="text-center py-20 border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-xl bg-slate-100 dark:bg-slate-900/30">

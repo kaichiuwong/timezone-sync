@@ -1,6 +1,6 @@
-# ChronoSync - Global Timezone Scheduler
+# TimezoneSync - Global Timezone Scheduler
 
-ChronoSync is a professional timezone visualizer designed to help distributed teams and travelers coordinate schedules effectively. It provides a seamless interface to compare time across cities, featuring daylight saving adjustments, solar cycles, and working hour overlaps.
+TimezoneSync is a professional timezone visualizer designed to help distributed teams and travelers coordinate schedules effectively. It provides a seamless interface to compare time across cities, featuring daylight saving adjustments, solar cycles, and working hour overlaps.
 
 ## ✨ Key Functionalities
 

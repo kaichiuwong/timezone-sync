@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { City } from '../types';
 import { calculateSolarCycle, formatTime, formatDate, getOffsetString, getLocalTimeParts, generateTimeOptions } from '../utils/time';
-import { TrashIcon, SunIcon, MoonIcon, HomeIcon } from './Icons';
+import { TrashIcon, SunIcon, MoonIcon, HomeIcon, GripVerticalIcon } from './Icons';
+import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
 interface CityRowProps {
   city: City;
@@ -11,6 +12,7 @@ interface CityRowProps {
   onTimeChange: (newMinutes: number) => void;
   isBase: boolean;
   is24Hour: boolean;
+  dragHandleListeners?: SyntheticListenerMap;
 }
 
 // Internal component to render a single 24h day block
@@ -58,7 +60,7 @@ const DayCycleBar: React.FC<{ sunrise: number; sunset: number; workStart: number
   );
 };
 
-export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove, onSetHome, onTimeChange, isBase, is24Hour }) => {
+export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove, onSetHome, onTimeChange, isBase, is24Hour, dragHandleListeners }) => {
   
   const { totalMinutes: currentMinutes } = useMemo(
     () => getLocalTimeParts(referenceDate, city.timezone),
@@ -87,25 +89,36 @@ export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove,
       
       {/* Top Row: Info */}
       <div className="flex justify-between items-start mb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{city.name}</h3>
-            {isBase ? (
-              <span className="text-[10px] uppercase font-bold bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-200 dark:border-cyan-800">Home</span>
-            ) : (
-              <button 
-                onClick={() => onSetHome(city.id)}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase font-bold bg-slate-200 dark:bg-slate-700 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 text-slate-600 dark:text-slate-300 hover:text-cyan-700 dark:hover:text-cyan-300 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 hover:border-cyan-300 dark:hover:border-cyan-800 flex items-center gap-1"
-                title="Set as Home City"
-              >
-                <HomeIcon className="w-3 h-3" /> Make Home
-              </button>
-            )}
+        <div className="flex items-start gap-3">
+          {/* Drag Handle */}
+          <div 
+            className="mt-1 text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 cursor-grab active:cursor-grabbing touch-none"
+            {...dragHandleListeners}
+            title="Drag to reorder"
+          >
+            <GripVerticalIcon className="w-5 h-5" />
           </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {city.state ? <span className="text-slate-500 dark:text-slate-400">{city.state}, </span> : null}
-            {city.country} • {getOffsetString(referenceDate, city.timezone)}
-          </p>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">{city.name}</h3>
+              {isBase ? (
+                <span className="text-[10px] uppercase font-bold bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 px-1.5 py-0.5 rounded border border-cyan-200 dark:border-cyan-800">Home</span>
+              ) : (
+                <button 
+                  onClick={() => onSetHome(city.id)}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] uppercase font-bold bg-slate-200 dark:bg-slate-700 hover:bg-cyan-100 dark:hover:bg-cyan-900/50 text-slate-600 dark:text-slate-300 hover:text-cyan-700 dark:hover:text-cyan-300 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-600 hover:border-cyan-300 dark:hover:border-cyan-800 flex items-center gap-1"
+                  title="Set as Home City"
+                >
+                  <HomeIcon className="w-3 h-3" /> Make Home
+                </button>
+              )}
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+              {city.state ? <span className="text-slate-500 dark:text-slate-400">{city.state}, </span> : null}
+              {city.country} • {getOffsetString(referenceDate, city.timezone)}
+            </p>
+          </div>
         </div>
         
         <div className="text-right relative">

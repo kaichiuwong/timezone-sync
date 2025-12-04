@@ -1,5 +1,5 @@
 {
-  "name": "ChronoSync - Global Timezone Scheduler",
+  "name": "TimezoneSync - Global Timezone Scheduler",
   "description": "A professional timezone visualizer allowing users to compare time across cities, featuring daylight saving adjustments, solar cycles (sunrise/sunset), and working hour overlaps.",
   "requestFramePermissions": []
 }
