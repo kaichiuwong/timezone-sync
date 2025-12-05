@@ -174,6 +174,8 @@ const App: React.FC = () => {
   
   const timeOptions = useMemo(() => generateTimeOptions(is24Hour), [is24Hour]);
 
+  const homeTimezone = cities.length > 0 ? cities[0].timezone : '';
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-200 pb-20 font-sans selection:bg-cyan-500/30 transition-colors duration-300">
       
@@ -267,6 +269,7 @@ const App: React.FC = () => {
                   onTimeChange={(val) => handleCityTimeUpdate(city, val)}
                   isBase={index === 0}
                   is24Hour={is24Hour}
+                  homeTimezone={homeTimezone}
                 />
               ))}
             </SortableContext>

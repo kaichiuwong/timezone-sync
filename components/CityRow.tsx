@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { City } from '../types';
-import { calculateSolarCycle, formatTime, formatDate, getOffsetString, getLocalTimeParts, generateTimeOptions } from '../utils/time';
+import { calculateSolarCycle, formatTime, formatDate, getOffsetString, getLocalTimeParts, generateTimeOptions, getTimezoneOffsetMinutes } from '../utils/time';
 import { TrashIcon, SunIcon, MoonIcon, HomeIcon, GripVerticalIcon } from './Icons';
 import { SyntheticListenerMap } from '@dnd-kit/core/dist/hooks/utilities';
 
@@ -12,6 +12,7 @@ interface CityRowProps {
   onTimeChange: (newMinutes: number) => void;
   isBase: boolean;
   is24Hour: boolean;
+  homeTimezone: string;
   dragHandleListeners?: SyntheticListenerMap;
 }
 
@@ -60,7 +61,7 @@ const DayCycleBar: React.FC<{ sunrise: number; sunset: number; workStart: number
   );
 };
 
-export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove, onSetHome, onTimeChange, isBase, is24Hour, dragHandleListeners }) => {
+export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove, onSetHome, onTimeChange, isBase, is24Hour, homeTimezone, dragHandleListeners }) => {
   
   const { totalMinutes: currentMinutes } = useMemo(
     () => getLocalTimeParts(referenceDate, city.timezone),
@@ -83,6 +84,24 @@ export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove,
   
   const isWorkingHours = currentMinutes >= workStart && currentMinutes < workEnd;
   const isDaytime = currentMinutes >= sunrise && currentMinutes < sunset;
+
+  // Time Difference Calculation
+  const offsetDiff = useMemo(() => {
+    if (isBase) return 0;
+    const homeOffset = getTimezoneOffsetMinutes(referenceDate, homeTimezone);
+    const cityOffset = getTimezoneOffsetMinutes(referenceDate, city.timezone);
+    return cityOffset - homeOffset;
+  }, [referenceDate, homeTimezone, city.timezone, isBase]);
+
+  const diffString = useMemo(() => {
+    if (isBase) return '';
+    if (offsetDiff === 0) return 'Same time';
+    const hours = Math.floor(Math.abs(offsetDiff) / 60);
+    const mins = Math.abs(offsetDiff) % 60;
+    const sign = offsetDiff > 0 ? '+' : '-';
+    // Format: +5h, -3h 30m
+    return `${sign}${hours}h${mins > 0 ? ` ${mins}m` : ''}`;
+  }, [offsetDiff, isBase]);
 
   return (
     <div className="group relative bg-white dark:bg-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 rounded-xl p-4 transition-all duration-300 shadow-sm dark:shadow-none">
@@ -114,9 +133,22 @@ export const CityRow: React.FC<CityRowProps> = ({ city, referenceDate, onRemove,
                 </button>
               )}
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              {city.state ? <span className="text-slate-500 dark:text-slate-400">{city.state}, </span> : null}
-              {city.country} • {getOffsetString(referenceDate, city.timezone)}
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5 flex items-center gap-2 flex-wrap">
+              <span>
+                {city.state ? <span className="text-slate-500 dark:text-slate-400">{city.state}, </span> : null}
+                {city.country}
+              </span>
+              <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+              <span>{getOffsetString(referenceDate, city.timezone)}</span>
+              
+              {!isBase && (
+                  <>
+                    <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
+                    <span className={`font-medium ${offsetDiff > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-indigo-600 dark:text-indigo-400'}`}>
+                      {diffString}
+                    </span>
+                  </>
+              )}
             </p>
           </div>
         </div>

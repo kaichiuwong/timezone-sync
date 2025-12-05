@@ -12,6 +12,7 @@ interface SortableCityRowProps {
   onTimeChange: (newMinutes: number) => void;
   isBase: boolean;
   is24Hour: boolean;
+  homeTimezone: string;
 }
 
 export const SortableCityRow: React.FC<SortableCityRowProps> = (props) => {
